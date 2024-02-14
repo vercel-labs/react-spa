@@ -38,8 +38,6 @@ function Likes({ postId, likes, likedByUser }) {
       mutate(`${API_URL}/posts`)
     } catch (error) {
       console.error("Error updating likes:", error)
-      // Optionally handle errors, such as rolling back optimistic updates, if necessary
-
       // Rollback the optimistic update
     }
   }
