@@ -1,4 +1,4 @@
-# React SPA
+# React SPA 🦖
 
 A basic twitter clone React SPA, with Restful A
 
