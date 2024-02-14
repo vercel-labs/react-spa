@@ -1,6 +1,6 @@
 # React SPA 🦖
 
-A basic twitter clone React SPA.
+A basic twitter clone.
 
 - CRA
 - **Routing:** react-router
