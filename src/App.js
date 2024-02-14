@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import { createBrowserRouter, RouterProvider, Link } from "react-router-dom"
+import Feed from "./feed"
+import Profile from "./profile"
+import { RootLayout, ProfileLayout } from "./components/layouts"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Feed /> },
+      {
+        path: ":username",
+        // Nested layout
+        element: <ProfileLayout />,
+        children: [{ index: true, element: <Profile /> }],
+      },
+      { path: "*", element: <NoMatch /> },
+    ],
+  },
+])
+
+export default function App() {
+  return <RouterProvider router={router} />
 }
 
-export default App;
+// Catch-all route
+function NoMatch() {
+  return (
+    <div>
+      <h2>Uh oh!</h2>
+      <p>
+        <Link to="/">Go to the home page</Link>
+      </p>
+    </div>
+  )
+}
