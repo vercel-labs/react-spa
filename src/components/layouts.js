@@ -56,13 +56,6 @@ export function ProfileLayout() {
   return (
     <div>
       <div>
-          <Modal close={() => setShow(false)} show={show}>
-              <img
-                  src={user.image}
-                  alt={`${user.name}'s avatar`}
-                  className="outline outline-[5px] outline-white rounded-full"
-              />
-          </Modal>
           <div className="h-44 bg-blue-300"></div>
           <div className="mt-[-72px] px-6">
               <button onClick={() => setShow((current) => !current)}
@@ -84,6 +77,14 @@ export function ProfileLayout() {
       <div className="mt-6">
         <Outlet />
       </div>
+      <Modal close={() => setShow(false)} show={show}>
+          <img
+              src={user.image}
+              alt={`${user.name}'s avatar`}
+              className="outline outline-[5px] outline-white rounded-full"
+          />
+      </Modal>
+
     </div>
   )
 }
