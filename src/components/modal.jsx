@@ -1,4 +1,4 @@
-import {useMemo} from "react";
+import { useMemo } from "react";
 
 export const Modal = ({show, children, close}) => {
     const additionalClasses = useMemo(()=> {

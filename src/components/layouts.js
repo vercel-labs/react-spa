@@ -1,10 +1,11 @@
 import { Outlet, NavLink, useParams } from "react-router-dom"
-import { fetcher } from "../lib/fetcher"
+import { useState } from "react";
 import useSWR from "swr"
+
+import { fetcher } from "../lib/fetcher"
 import { HomeIcon, HomeIconSolid, UserIcon, UserIconSolid } from "./icons"
 import { API_URL } from "../lib/constants"
-import {Modal} from "./modal";
-import {useState} from "react";
+import { Modal } from "./modal";
 
 export function RootLayout() {
   // Hardcoded until we implement authentication
