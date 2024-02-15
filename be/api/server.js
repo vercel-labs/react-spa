@@ -81,16 +81,18 @@ router.post("/posts/:postId/like", async (req, res) => {
   const userId = 1 // Hardcoded until we add authentication
 
   const postId = req.params.postId
-  const { action } = req.body
+  const { likedByUser } = req.body
+
+  console.log(likedByUser, postId)
 
   try {
     await db.transaction(async (trx) => {
       const likeExists = await trx("likes").where({ userId, postId }).first()
 
-      if (action === "like" && !likeExists) {
+      if (likedByUser && !likeExists) {
         await trx("likes").insert({ userId, postId })
         await trx("posts").where({ id: postId }).increment("likes", 1)
-      } else if (action === "unlike" && likeExists) {
+      } else if (!likedByUser && likeExists) {
         await trx("likes").where({ userId, postId }).delete()
         await trx("posts").where({ id: postId }).decrement("likes", 1)
       }

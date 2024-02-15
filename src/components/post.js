@@ -1,44 +1,53 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
-import { HeartIcon } from "./icons"
-import { useSWRConfig } from "swr"
 import { API_URL } from "../lib/constants"
+import { HeartIcon, HeartIconSolid } from "./icons"
 
-function Likes({ postId, likes, likedByUser }) {
-  const { mutate } = useSWRConfig()
+async function likePost(postId, likedByUser) {
+  try {
+    const res = await fetch(`${API_URL}/posts/${postId}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ likedByUser }),
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+
+    const data = await res.json()
+    return data.likes
+  } catch (error) {
+    console.error("Error liking post:", error)
+    throw new Error("Failed to like post")
+  }
+}
+function Likes({
+  postId,
+  likes: initialLikes,
+  likedByUser: initialLikedByUser,
+}) {
+  const [likes, setLikes] = useState(initialLikes)
+  const [likedByUser, setLikedByUser] = useState(initialLikedByUser)
 
   const handleLike = async () => {
-    const action = likedByUser ? "unlike" : "like"
-    const newLikes = action === "like" ? likes + 1 : likes - 1
+    const newLikes = likedByUser ? likes - 1 : likes + 1
+    const newLikedByUser = !likedByUser
 
-    // Optimistically update the post's likes in the feed
-    mutate(
-      `${API_URL}/posts`,
-      (posts) => {
-        return posts.map((post) => {
-          if (post.id === postId) {
-            return { ...post, likes: newLikes, likedByUser: !likedByUser }
-          }
-          return post
-        })
-      },
-      false,
-    )
+    // Optimistically update the post's likes
+    setLikes(newLikes)
+    setLikedByUser(newLikedByUser)
 
     try {
-      // Perform the actual like/unlike operation on the server
-      await fetch(`${API_URL}/posts/${postId}/like`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action }),
-      })
-
-      // Revalidate
-      mutate(`${API_URL}/posts`)
+      // Perform the actual operation on the server
+      const validatedLikes = await likePost(postId, newLikedByUser)
+      // Update the state with the actual likes count from the server
+      setLikes(validatedLikes)
     } catch (error) {
-      console.error("Error updating likes:", error)
       // Rollback the optimistic update
+      console.error("Error updating likes:", error)
+      setLikes(initialLikes)
+      setLikedByUser(initialLikedByUser)
     }
   }
 
@@ -47,10 +56,11 @@ function Likes({ postId, likes, likedByUser }) {
       onClick={handleLike}
       className="flex items-center gap-1 text-gray-500 text-sm"
     >
-      <HeartIcon
-        className={`h-5 w-5 ${likedByUser ? "text-red-500" : ""}`}
-        strokeWidth={2}
-      />
+      {likedByUser ? (
+        <HeartIconSolid className="h-5 w-5 text-red-500" />
+      ) : (
+        <HeartIcon className="h-5 w-5" strokeWidth={2} />
+      )}
       {likes}
     </button>
   )
