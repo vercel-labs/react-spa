@@ -1,14 +1,31 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const Modal = ({show, children, close}) => {
-    const additionalClasses = useMemo(()=> {
-        return show ? "" :"hidden"
-    }, [show])
+    const [classNames, setClassNames] = useState("opacity-0 hidden")
+
+    useEffect(() => {
+        let timeout;
+        if (show) {
+            setClassNames("opacity-0")
+            timeout = setTimeout(()=> setClassNames("opacity-100"), 10)
+        } else  {
+            setClassNames("opacity-0")
+            timeout = setTimeout(()=> setClassNames("opacity-0 hidden"), 300)
+        }
+        return () => {
+            clearTimeout(timeout)
+        }
+    }, [show]);
+
+    const classesForCLose = useMemo(()=> {
+        return close ? "" : "hidden"
+    }, [close])
+
 
     return (
-        <div onClick={close} tabIndex="-1" aria-hidden="true"
-             className={"bg-black/[0.9] flex justify-center items-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-screen max-h-full " + additionalClasses}>
-            <button onClick={close} className="h-14 w-14 text-white fixed top-0 left-0 p-4 z-10">
+        <div onClick={close}
+             className={"transition-opacity ease-in-out delay-150 duration-300 bg-black/[0.9] flex justify-center items-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-screen max-h-full " + classNames}>
+            <button onClick={close} className={"h-14 w-14 text-white fixed top-0 left-0 p-4 z-10 " + classesForCLose}>
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <g>
                         <path
