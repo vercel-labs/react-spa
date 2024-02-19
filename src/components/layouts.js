@@ -1,8 +1,11 @@
 import { Outlet, NavLink, useParams } from "react-router-dom"
-import { fetcher } from "../lib/fetcher"
+import { useState } from "react";
 import useSWR from "swr"
+
+import { fetcher } from "../lib/fetcher"
 import { HomeIcon, HomeIconSolid, UserIcon, UserIconSolid } from "./icons"
 import { API_URL } from "../lib/constants"
+import { Modal } from "./modal";
 
 export function RootLayout() {
   // Hardcoded until we implement authentication
@@ -43,6 +46,7 @@ export function RootLayout() {
 }
 
 export function ProfileLayout() {
+  const [show, setShow] = useState(false);
   const { username } = useParams()
   const { data: user, error } = useSWR(`${API_URL}/users/${username}`, fetcher)
 
@@ -52,17 +56,20 @@ export function ProfileLayout() {
   return (
     <div>
       <div>
-        <div className="h-44 bg-blue-300"></div>
-        <div className="mt-[-72px] px-6">
-          <img
-            src={user.image}
-            alt={`${user.name}'s avatar`}
-            className="h-36 w-36 rounded-full outline outline-[5px] outline-white"
-          />
-          <div className="mt-4">
-            <h1 className="text-xl font-bold">{user.name}</h1>
-            <p className="text-sm text-gray-500">@{user.username}</p>
-            <p className="text-md text-gray-700 mt-2">{user.bio}</p>
+          <div className="h-44 bg-blue-300"></div>
+          <div className="mt-[-72px] px-6">
+              <button onClick={() => setShow((current) => !current)}
+                      className="bg-transparent border-none rounded-full">
+              <img
+                    src={user.image}
+                    alt={`${user.name}'s avatar`}
+                    className="h-36 w-36 rounded-full outline outline-[5px] outline-white"
+                />
+            </button>
+            <div className="mt-4">
+                <h1 className="text-xl font-bold">{user.name}</h1>
+                <p className="text-sm text-gray-500">@{user.username}</p>
+                <p className="text-md text-gray-700 mt-2">{user.bio}</p>
           </div>
         </div>
       </div>
@@ -70,6 +77,14 @@ export function ProfileLayout() {
       <div className="mt-6">
         <Outlet />
       </div>
+      <Modal close={() => setShow(false)} show={show}>
+          <img
+              src={user.image}
+              alt={`${user.name}'s avatar`}
+              className="outline outline-[5px] outline-white rounded-full"
+          />
+      </Modal>
+
     </div>
   )
 }
