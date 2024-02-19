@@ -35,6 +35,31 @@ router.post("/verifyToken", authenticateToken, (req, res) => {
   res.status(200).json({ valid: true })
 })
 
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body
+
+  try {
+    const user = await db("users").where({ username }).first()
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid credentials" })
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return res.status(401).json({ error: "Invalid credentials" })
+    }
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
+      expiresIn: "1h",
+    })
+    res.json({ token })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Login failed" })
+  }
+})
+
 router.get("/users/:username", async (req, res) => {
   const { username } = req.params
 
