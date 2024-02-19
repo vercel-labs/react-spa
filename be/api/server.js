@@ -1,16 +1,35 @@
+require("dotenv").config()
+
 const express = require("express")
 const knex = require("knex")
-const cors = require("cors")
 const knexConfig = require("../../knexfile").development
+const cors = require("cors")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 const app = express()
 const db = knex(knexConfig)
 const router = express.Router()
 const PORT = process.env.PORT || 5001
+const JWT_SECRET = process.env.JWT_SECRET
 
 app.use(cors())
 app.use(express.json())
 app.use("/api", router)
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"]
+  const token = authHeader && authHeader.split(" ")[1]
+
+  if (token == null)
+    return res.status(401).json({ error: "Invalid credentials" })
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Invalid credentials" })
+    req.user = user
+    next()
+  })
+}
 
 router.get("/users/:username", async (req, res) => {
   const { username } = req.params
@@ -76,14 +95,10 @@ router.get("/posts", async (req, res) => {
     res.status(500).json({ error: "Internal server error" })
   }
 })
-
-router.post("/posts/:postId/like", async (req, res) => {
-  const userId = 1 // Hardcoded until we add authentication
-
-  const postId = req.params.postId
+router.post("/posts/:postId/like", authenticateToken, async (req, res) => {
+  const { postId } = req.params
   const { likedByUser } = req.body
-
-  console.log(likedByUser, postId)
+  const { userId } = req.user
 
   try {
     await db.transaction(async (trx) => {
