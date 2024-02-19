@@ -1,37 +1,49 @@
-import { createBrowserRouter, RouterProvider, Link } from "react-router-dom"
+import React from "react"
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom"
+import RootLayout from "./components/root-layout"
+import ProfileLayout from "./components/profile-layout"
 import Feed from "./feed"
+import Login from "./login"
 import Profile from "./profile"
-import { RootLayout, ProfileLayout } from "./components/layouts"
+import { AuthProvider, useAuth } from "./lib/authContext"
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Feed /> },
-      {
-        path: ":username",
-        // Nested layout
-        element: <ProfileLayout />,
-        children: [{ index: true, element: <Profile /> }],
-      },
-      { path: "*", element: <NoMatch /> },
-    ],
-  },
-])
-
-export default function App() {
-  return <RouterProvider router={router} />
+function ProtectedRoutes() {
+  const { isAuth, isLoading } = useAuth()
+  if (isLoading) return null
+  return isAuth ? <Outlet /> : <Navigate to="/login" replace />
 }
 
-// Catch-all route
-function NoMatch() {
+function PublicRoutes() {
+  const { isAuth, isLoading } = useAuth()
+  if (isLoading) return null
+  return isAuth ? <Navigate to="/" replace /> : <Outlet />
+}
+
+export default function App() {
   return (
-    <div>
-      <h2>Uh oh!</h2>
-      <p>
-        <Link to="/">Go to the home page</Link>
-      </p>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<PublicRoutes />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
+
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/" element={<RootLayout />}>
+              <Route index element={<Feed />} />
+              <Route path="/:username" element={<ProfileLayout />}>
+                <Route index element={<Profile />} />
+              </Route>
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
