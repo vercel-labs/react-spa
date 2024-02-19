@@ -2,12 +2,16 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { API_URL } from "../lib/constants"
 import { HeartIcon, HeartIconSolid } from "./icons"
+import { useAuth } from "../lib/authContext"
 
-async function likePost(postId, likedByUser) {
+async function likePost(postId, likedByUser, token) {
   try {
     const res = await fetch(`${API_URL}/posts/${postId}/like`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ likedByUser }),
     })
 
@@ -22,11 +26,13 @@ async function likePost(postId, likedByUser) {
     throw new Error("Failed to like post")
   }
 }
+
 function Likes({
   postId,
   likes: initialLikes,
   likedByUser: initialLikedByUser,
 }) {
+  const { token } = useAuth()
   const [likes, setLikes] = useState(initialLikes)
   const [likedByUser, setLikedByUser] = useState(initialLikedByUser)
 
@@ -34,14 +40,14 @@ function Likes({
     const newLikes = likedByUser ? likes - 1 : likes + 1
     const newLikedByUser = !likedByUser
 
-    // Optimistically update the post's likes
+    // 1. Optimistically update the post's likes
     setLikes(newLikes)
     setLikedByUser(newLikedByUser)
 
     try {
-      // Perform the actual operation on the server
-      const validatedLikes = await likePost(postId, newLikedByUser)
-      // Update the state with the actual likes count from the server
+      // 2. Perform the actual operation on the server
+      const validatedLikes = await likePost(postId, newLikedByUser, token)
+      // 3. Update the state with the actual likes count from the server
       setLikes(validatedLikes)
     } catch (error) {
       // Rollback the optimistic update
@@ -67,9 +73,11 @@ function Likes({
 }
 
 export function Post({ id, text, likes, username, name, image, likedByUser }) {
+  const ProfileLink = `/${username}`
+
   return (
     <section className="p-6 text-gray-800 border-t flex gap-2">
-      <Link to={`/${username}`} className="shrink-0">
+      <Link to={ProfileLink} className="shrink-0">
         <img
           src={image}
           alt={`${name}'s avatar`}
@@ -79,14 +87,13 @@ export function Post({ id, text, likes, username, name, image, likedByUser }) {
       <div>
         <div className="flex items-center gap-2">
           <Link
-            to={`/${username}`}
+            to={ProfileLink}
             className="font-semibold hover:underline hover:underline-offset-2 transition-colors duration-200 ease-in-out"
           >
             {name}
           </Link>
-          <Link to={`/${username}`} className="text-gray-500">
-            @{username}
-          </Link>
+          <span className="text-gray-500">@{username}</span>{" "}
+          {/* Changed to span for non-interactive username mention */}
         </div>
         <p className="mt-2">{text}</p>
         <div className="mt-3">
