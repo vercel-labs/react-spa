@@ -31,6 +31,10 @@ function authenticateToken(req, res, next) {
   })
 }
 
+router.post("/verifyToken", authenticateToken, (req, res) => {
+  res.status(200).json({ valid: true })
+})
+
 router.get("/users/:username", async (req, res) => {
   const { username } = req.params
 
