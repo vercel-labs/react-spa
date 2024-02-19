@@ -7,6 +7,7 @@ import { API_URL } from "./lib/constants"
 
 export default function Profile() {
   const { username } = useParams()
+
   const {
     data: posts,
     error,
