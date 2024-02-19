@@ -11,6 +11,7 @@ A basic twitter clone.
 
 To do: 
 
-- [ ] Authentication
+- [x] Authentication
 - [ ] Code splitting
-- [ ] Tailwind -> CSS 
+- [ ] Switch to vercel/postgres
+
