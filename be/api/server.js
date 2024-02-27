@@ -97,8 +97,9 @@ router.get("/posts", async (req, res) => {
         "users.username",
         "users.name",
         "users.image",
+        // Postgres returns lowercase aliases
         db.raw(
-          "CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS likedByUser",
+          "CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS likedbyuser",
         ),
       )
 
@@ -113,7 +114,7 @@ router.get("/posts", async (req, res) => {
         posts.map((post) => ({
           ...post,
           // Convert 0/1 to boolean
-          likedByUser: Boolean(post.likedByUser),
+          likedByUser: Boolean(post.likedbyuser),
         })),
       )
     } else {
