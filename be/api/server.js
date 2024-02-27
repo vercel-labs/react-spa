@@ -97,10 +97,12 @@ router.get("/posts", async (req, res) => {
         "users.username",
         "users.name",
         "users.image",
+        // Postgres returns lowercase aliases
         db.raw(
-          "CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS likedByUser",
+          'CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS "likedByUser"',
         ),
       )
+      .orderBy("posts.id", "asc")
 
     if (req.query.username) {
       query = query.where("users.username", req.query.username)
