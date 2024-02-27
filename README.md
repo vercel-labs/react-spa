@@ -6,12 +6,12 @@ A basic twitter clone.
 - **Routing:** react-router
 - **Data Fetching:** SWR
 - **API:** Express + Knex.js
-- **Database:** SQLite (for development)
-- CSS and JS
+- **Database:** vercel/postgres
+- JS
 
 To do: 
 
 - [x] Authentication
 - [ ] Code splitting
-- [ ] Switch to vercel/postgres
+- [x] Switch to vercel/postgres
 
