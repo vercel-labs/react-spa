@@ -99,7 +99,7 @@ router.get("/posts", async (req, res) => {
         "users.image",
         // Postgres returns lowercase aliases
         db.raw(
-          "CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS likedbyuser",
+          'CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS "likedByUser"',
         ),
       )
       .orderBy("posts.id", "asc")
@@ -115,7 +115,7 @@ router.get("/posts", async (req, res) => {
         posts.map((post) => ({
           ...post,
           // Convert 0/1 to boolean
-          likedByUser: Boolean(post.likedbyuser),
+          likedByUser: Boolean(post.likedByUser),
         })),
       )
     } else {
