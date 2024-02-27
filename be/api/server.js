@@ -102,6 +102,7 @@ router.get("/posts", async (req, res) => {
           "CASE WHEN likes.id IS NOT NULL THEN TRUE ELSE FALSE END AS likedbyuser",
         ),
       )
+      .orderBy("posts.id", "asc")
 
     if (req.query.username) {
       query = query.where("users.username", req.query.username)
