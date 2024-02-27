@@ -16,4 +16,9 @@ module.exports = {
       directory: "./be/seeds",
     },
   },
+  production: {
+    client: "pg",
+    useNullAsDefault: true,
+    connection: process.env.DATABASE_URL,
+  },
 }
