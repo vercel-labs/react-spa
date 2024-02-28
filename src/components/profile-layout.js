@@ -1,17 +1,35 @@
-import { useState } from "react"
+import axios from "axios"
+import { useEffect, useState } from "react"
 import { Outlet, useParams } from "react-router-dom"
-import useSWR from "swr"
 import { API_URL } from "../lib/constants"
-import { fetcher } from "../lib/fetcher"
 import { Modal } from "./modal"
 
 export default function ProfileLayout() {
-  const [show, setShow] = useState(false)
   const { username } = useParams()
-  const { data: user, error } = useSWR(`${API_URL}/users/${username}`, fetcher)
+  const [show, setShow] = useState(false)
+  const [user, setUser] = useState(undefined)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  if (error) return <div>An error has occurred.</div>
-  if (!user) return <div>Loading...</div>
+  // discuss why fetching data in useEffect is not good practice
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setIsLoading(true)
+      try {
+        const response = await axios.get(`${API_URL}/users/${username}`)
+        setUser(response.data)
+      } catch (error) {
+        setError(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [username])
+
+  if (error) return <div className="p-6">Failed to load</div>
+  if (isLoading) return <div className="p-6">Loading...</div>
 
   return (
     <div>
