@@ -6,6 +6,7 @@ const knexConfig = require("../../knexfile").development
 const cors = require("cors")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const cookieParser = require("cookie-parser")
 
 const app = express()
 const db = knex(knexConfig)
@@ -13,16 +14,22 @@ const router = express.Router()
 const PORT = process.env.PORT || 5001
 const JWT_SECRET = process.env.JWT_SECRET
 
-app.use(cors())
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+}
+
+app.use(cors(corsOptions))
+app.use(cookieParser())
 app.use(express.json())
 app.use("/api", router)
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"]
-  const token = authHeader && authHeader.split(" ")[1]
+  const token = req.cookies.token
 
-  if (token == null)
+  if (!token) {
     return res.status(401).json({ error: "Invalid credentials" })
+  }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Invalid credentials" })
@@ -31,8 +38,8 @@ function authenticateToken(req, res, next) {
   })
 }
 
-router.post("/verifyToken", authenticateToken, (req, res) => {
-  res.status(200).json({ valid: true })
+router.get("/verifyToken", authenticateToken, (req, res) => {
+  res.status(200).json({ valid: true, username: req.user.username })
 })
 
 router.post("/login", async (req, res) => {
@@ -40,7 +47,6 @@ router.post("/login", async (req, res) => {
 
   try {
     const user = await db("users").where({ username }).first()
-
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" })
     }
@@ -50,14 +56,34 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" })
     }
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "1h",
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    )
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 3600000),
+      secure: true,
+      sameSite: "lax",
+      path: "/",
     })
-    res.json({ token })
+
+    res
+      .status(200)
+      .json({ message: "Login successful", username: user.username })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Login failed" })
   }
+})
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token")
+  res.status(200).json({ message: "Logged out" })
 })
 
 router.get("/users/:username", async (req, res) => {
