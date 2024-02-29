@@ -1,26 +1,19 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import axios from "axios"
 import { API_URL } from "../lib/constants"
 import { HeartIcon, HeartIconSolid } from "./icons"
-import { useAuth } from "../lib/authContext"
 
-async function likePost(postId, likedByUser, token) {
+async function likePost(postId, likedByUser) {
   try {
-    const res = await fetch(`${API_URL}/posts/${postId}/like`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/like`,
+      { likedByUser },
+      {
+        withCredentials: true,
       },
-      body: JSON.stringify({ likedByUser }),
-    })
-
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`)
-    }
-
-    const data = await res.json()
-    return data.likes
+    )
+    return response.data.likes
   } catch (error) {
     console.error("Error liking post:", error)
     throw new Error("Failed to like post")
@@ -32,7 +25,6 @@ function Likes({
   likes: initialLikes,
   likedByUser: initialLikedByUser,
 }) {
-  const { token } = useAuth()
   const [likes, setLikes] = useState(initialLikes)
   const [likedByUser, setLikedByUser] = useState(initialLikedByUser)
 
@@ -46,7 +38,7 @@ function Likes({
 
     try {
       // 2. Perform the actual operation on the server
-      const validatedLikes = await likePost(postId, newLikedByUser, token)
+      const validatedLikes = await likePost(postId, newLikedByUser)
       // 3. Update the state with the actual likes count from the server
       setLikes(validatedLikes)
     } catch (error) {

@@ -6,7 +6,7 @@ export default function RootLayout() {
   const { username } = useAuth()
 
   return (
-    <div className="flex mx-auto max-w-6xl">
+    <div className="flex mx-auto max-w-4xl">
       <nav className="w-64 shrink-0 p-8 flex flex-col h-screen gap-5 text-xl top-0 sticky tracking-wider">
         <NavLink
           to="/"
@@ -30,11 +30,9 @@ export default function RootLayout() {
         </NavLink>
       </nav>
 
-      <main className="border-x min-h-screen">
+      <main className="border-x min-h-screen w-full">
         <Outlet />
       </main>
-
-      <div className="w-64 shrink-0"></div>
     </div>
   )
 }
