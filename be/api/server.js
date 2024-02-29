@@ -39,7 +39,9 @@ function authenticateToken(req, res, next) {
 }
 
 router.get("/verifyToken", authenticateToken, (req, res) => {
-  res.status(200).json({ valid: true, username: req.user.username })
+  res
+    .status(200)
+    .json({ valid: true, username: req.user.username, userId: req.user.userId })
 })
 
 router.post("/login", async (req, res) => {
@@ -72,9 +74,11 @@ router.post("/login", async (req, res) => {
       path: "/",
     })
 
-    res
-      .status(200)
-      .json({ message: "Login successful", username: user.username })
+    res.status(200).json({
+      message: "Login successful",
+      username: user.username,
+      userId: user.id,
+    })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Login failed" })
@@ -104,9 +108,9 @@ router.get("/users/:username", async (req, res) => {
 })
 
 router.get("/posts", async (req, res) => {
-  try {
-    const userId = 1 // Hardcoded until we add authentication
+  const { userId } = req.query
 
+  try {
     let query = db("posts")
       .join("users", "posts.userId", "=", "users.id")
       .leftJoin("likes", function () {
@@ -152,6 +156,7 @@ router.get("/posts", async (req, res) => {
     res.status(500).json({ error: "Internal server error" })
   }
 })
+
 router.post("/posts/:postId/like", authenticateToken, async (req, res) => {
   const { postId } = req.params
   const { likedByUser } = req.body

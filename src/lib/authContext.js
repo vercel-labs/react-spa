@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [isAuth, setIsAuth] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [username, setUsername] = useState(null)
+  const [userId, setUserId] = useState(null)
 
   // Check token on the server, don't trust the client
   useEffect(() => {
@@ -20,6 +21,7 @@ export function AuthProvider({ children }) {
         if (response.status === 200) {
           setIsAuth(true)
           setUsername(response.data.username)
+          setUserId(response.data.userId)
         } else {
           logout()
         }
@@ -47,6 +49,7 @@ export function AuthProvider({ children }) {
 
       setIsAuth(true)
       setUsername(response.data.username)
+      setUserId(response.data.userId)
     } catch (error) {
       throw error
     }
@@ -57,6 +60,7 @@ export function AuthProvider({ children }) {
       await axios.post(`${API_URL}/logout`, {}, { withCredentials: true })
       setIsAuth(false)
       setUsername(null)
+      setUserId(null)
     } catch (error) {
       throw error
     }
@@ -64,7 +68,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuth, login, logout, isLoading, username }}
+      value={{ isAuth, login, logout, isLoading, username, userId }}
     >
       {children}
     </AuthContext.Provider>

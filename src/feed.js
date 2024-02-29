@@ -2,8 +2,10 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { Post } from "./components/post"
 import { API_URL } from "./lib/constants"
+import { useAuth } from "./lib/authContext"
 
 export default function Feed() {
+  const { userId } = useAuth()
   const [posts, setPosts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -13,7 +15,9 @@ export default function Feed() {
     const fetchPosts = async () => {
       setIsLoading(true)
       try {
-        const response = await axios.get(`${API_URL}/posts`)
+        const response = await axios.get(`${API_URL}/posts`, {
+          params: { userId },
+        })
         setPosts(response.data)
       } catch (error) {
         setError(error)
@@ -23,7 +27,7 @@ export default function Feed() {
     }
 
     fetchPosts()
-  }, [])
+  }, [userId])
 
   if (error) return <div className="p-6">Failed to load</div>
   if (isLoading) return <div className="p-6">Loading...</div>

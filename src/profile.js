@@ -1,11 +1,11 @@
 import axios from "axios"
 import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
 import { Post } from "./components/post"
 import { API_URL } from "./lib/constants"
+import { useAuth } from "./lib/authContext"
 
 export default function Profile() {
-  const { username } = useParams()
+  const { userId, username } = useAuth()
   const [userPosts, setUserPosts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -17,6 +17,9 @@ export default function Profile() {
       try {
         const response = await axios.get(
           `${API_URL}/posts?username=${username}`,
+          {
+            params: { userId },
+          },
         )
         setUserPosts(response.data)
       } catch (error) {
@@ -27,7 +30,7 @@ export default function Profile() {
     }
 
     fetchPosts()
-  }, [username])
+  }, [username, userId])
 
   if (error) return <div className="p-6">Failed to load</div>
   if (isLoading) return <div className="p-6">Loading...</div>
