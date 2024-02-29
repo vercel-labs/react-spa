@@ -7,7 +7,7 @@ import { Modal } from "./modal"
 export default function ProfileLayout() {
   const { username } = useParams()
   const [show, setShow] = useState(false)
-  const [user, setUser] = useState(undefined)
+  const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
