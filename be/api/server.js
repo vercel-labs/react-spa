@@ -12,7 +12,7 @@ const app = express()
 const db = knex(knexConfig)
 const router = express.Router()
 const PORT = process.env.PORT || 5001
-const environment = process.env.NODE_ENV || "development"
+const environment = process.env.VERCEL_ENV || "development"
 const JWT_SECRET = process.env.JWT_SECRET
 
 const corsOptions = {
