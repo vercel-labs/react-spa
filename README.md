@@ -2,16 +2,10 @@
 
 A basic twitter clone.
 
+- JS
 - CRA
 - **Routing:** react-router
-- **Data Fetching:** SWR
+- **Data Fetching:** Axios
 - **API:** Express + Knex.js
 - **Database:** vercel/postgres
-- JS
-
-To do: 
-
-- [x] Authentication
-- [ ] Code splitting
-- [x] Switch to vercel/postgres
 
