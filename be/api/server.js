@@ -12,10 +12,14 @@ const app = express()
 const db = knex(knexConfig)
 const router = express.Router()
 const PORT = process.env.PORT || 5001
+const environment = process.env.NODE_ENV || "development"
 const JWT_SECRET = process.env.JWT_SECRET
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin:
+    environment === "development"
+      ? "http://localhost:3000"
+      : "https://react-spa.vercel.rocks",
   credentials: true,
 }
 
@@ -69,7 +73,7 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       expires: new Date(Date.now() + 3600000),
-      secure: true,
+      secure: environment === "production",
       sameSite: "lax",
       path: "/",
     })
