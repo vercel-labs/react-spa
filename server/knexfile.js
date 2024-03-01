@@ -10,10 +10,10 @@ module.exports = {
     useNullAsDefault: true,
     connection: process.env.POSTGRES_URL,
     migrations: {
-      directory: "./be/migrations",
+      directory: "./migrations",
     },
     seeds: {
-      directory: "./be/seeds",
+      directory: "./seeds",
     },
   },
   production: {

@@ -2,7 +2,7 @@ require("dotenv").config()
 
 const express = require("express")
 const knex = require("knex")
-const knexConfig = require("../../knexfile").development
+const knexConfig = require("./knexfile").development
 const cors = require("cors")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
@@ -193,5 +193,3 @@ router.post("/posts/:postId/like", authenticateToken, async (req, res) => {
 })
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-
-module.exports = app
